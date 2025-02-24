@@ -1,0 +1,23 @@
+@use 'sass:color';
+
+// Simple Text
+$text-normal: #aaa;
+$text-dim: #888;
+$text-bright: #ccc;
+
+// Simple Backgrounds
+$bg-base: #111;
+$bg-dark: #222;
+$bg-normal: #282828;
+$bg-bright: #333;
+$bg-brighter: #383838;
+
+// Accents
+$primary: seagreen;
+$secondary: teal;
+$tertiary: purple;
+
+// Accent Text
+$text-primary: color.adjust($primary, $lightness: 10%);
+$text-secondary: color.adjust($secondary, $lightness: 10%);
+$text-tertiary: color.adjust($tertiary, $lightness: 10%);

@@ -1,0 +1,95 @@
+<!-- Instructions -->
+<p class="instructions">Drag and drop elements to change their order in groups or to move them from one group to another.</p>
+
+<!-- Controls -->
+<div class="controls-area">
+  <app-checkbox class="tertiary" [isChecked]="isSwapAllowed" label="Allow Swap" (click)="toggleSwap()" />
+  <button type="button" class="controls-button" (click)="resetGroups()">Reset Groups</button>
+  <button type="button" class="controls-button" (click)="shuffleGroups()">Shuffle Groups</button>
+</div>
+
+<!-- Groups -->
+<div
+  class="wrapper"
+  [ngClass]="{'fading-in': isFadingIn()}">
+  @for (group of groups; track group.id; let $g = $index) {
+    <div class="group">
+
+      <!-- Empty Group Placeholder -->
+      @if (!group.list.length) {
+        <div class="placeholder">Empty Group</div>
+      }
+  
+      <!-- List of Draggable Elements for Group -->
+      <div class="draggable-element-list">
+        @for (element of group.list; track element.id) {
+
+          <!-- Drop Area Before Each Draggable Element in Group -->
+          <ng-template
+            [ngTemplateOutlet]="dropArea"
+            [ngTemplateOutletContext]="{group: $g, area: $index}"
+          />
+
+          <!-- Draggable Element -->
+          <div
+            class="list-element"
+            [ngClass]="{
+              'dragged': sourceGroup === $g && draggedIndex === $index,
+              'active-dragover swap': isSwapAllowed && draggedIndex !== NONE &&
+                targetGroup === $g && targetElementIndex === $index && 
+                  !(sourceGroup === $g && draggedIndex === $index),
+              'grow': targetGroup === $g && growIndex === $index,
+              'shrink': sourceGroup === $g && shrinkIndex === $index,
+              'swap-start-source': targetElementIndex !== NONE && sourceGroup === $g && swapSourceIndex === $index,
+              'swap-start-target': targetElementIndex !== NONE && targetGroup === $g && swapTargetIndex === $index,
+              'swap-end': targetElementIndex === NONE && 
+                ((swapSourceIndex === $index && sourceGroup === $g) ||
+                  (swapTargetIndex === $index && targetGroup === $g))
+            }"
+            [draggable]="!isActionInProgress"
+            (dragstart)="onDragStart($g, $index)"
+            (dragend)="onDragEnd()"
+            (dragover)="onElementDragOver($event, $g, $index)"
+            (dragleave)="onElementDragLeave()"
+            (drop)="onElementDrop()">
+
+            <!-- Element Text -->
+            <div class="element-text">
+              <span>Draggable Element</span>
+              <span class="element-number">{{element.number}}</span>
+            </div>
+
+            <!-- Dots to Visualize Number -->
+            <app-dots class="primary" [amount]="element.number" />
+
+          </div>
+        }
+
+        <!-- Drop Area After Last Draggable Element in Group -->
+        <ng-template
+          [ngTemplateOutlet]="dropArea"
+          [ngTemplateOutletContext]="{group: $g, area: group.list.length}"
+        />
+
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Drop Area Template -->
+<ng-template #dropArea let-group="group" let-area="area">
+  <div
+    class="drop-area"
+    [ngClass]="{
+      'possible': !isActionInProgress && draggedIndex !== NONE && 
+        (sourceGroup !== group || (draggedIndex !== area && draggedIndex !== area - 1)),
+      'active': targetGroup == group && targetAreaIndex === area,
+      'grow': targetGroup === group && growIndex === area - 1,
+      'shrink': sourceGroup === group && shrinkIndex === area - 1,
+      'no-swap': !isSwapAllowed
+    }"
+    (dragover)="onAreaDragOver($event, group, area)"
+    (dragleave)="onAreaDragLeave()"
+    (drop)="onAreaDrop()">
+  </div>
+</ng-template>

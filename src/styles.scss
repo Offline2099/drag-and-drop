@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'sass:color';
+@use './styles-shared' as *;
+
+html,
+body {
+  min-width: 1000px;
+  margin: 0;
+  background-color: $bg-base;
+  color: $text-normal;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  letter-spacing: .03em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background-color: color.adjust($primary, $alpha: -0.8);
+  color: $text-primary;
+}

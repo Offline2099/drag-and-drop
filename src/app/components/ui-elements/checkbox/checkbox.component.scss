@@ -1,0 +1,69 @@
+@use 'sass:color';
+@use '../../../../styles-shared' as *;
+
+$size: 15px;
+$border: 1px;
+$transition: .3s;
+
+:host {
+  display: flex;
+  padding: 5px;
+  cursor: pointer;
+  .checkbox {
+    @include circle($size);
+    position: relative;
+    margin-right: 8px;
+    border: $border solid;
+    &:after {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      @include pseudo-overlay(
+        $content: '✓',
+        $top: calc(-#{$border} - 1px),
+        $left: calc(-#{$border} - 1px)
+      );
+      @include circle(calc(100% + 2 * $border + 2px));
+      background-color: $bg-bright;
+      color: $text-bright;
+      font-size: 12px;
+      transition: $transition;
+      transform: scale(0);
+    }
+  }  
+  .label {
+    font-size: 14px;
+    white-space: nowrap;
+    user-select: none;
+    transition: $transition;
+  }
+  &.checked {
+    .checkbox:after {
+      transform: scale(1);
+    }
+    &.primary {
+      .checkbox:after {
+        background-color: color.adjust($primary, $lightness: -10%);
+      }
+      .label {
+        color: $text-primary;
+      }
+    }
+    &.secondary {
+      .checkbox:after {
+        background-color: color.adjust($secondary, $lightness: -6%);
+      }
+      .label {
+        color: $text-secondary;
+      }
+    }
+    &.tertiary {
+      .checkbox:after {
+        background-color: color.adjust($tertiary, $lightness: -6%);
+      }
+      .label {
+        color: $text-tertiary;
+      }
+    }
+  }
+}

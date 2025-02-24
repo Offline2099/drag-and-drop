@@ -1,0 +1,121 @@
+<!-- Instructions -->
+<p class="instructions">Drag and drop elements to change their positions in the nested list.</p>
+
+<!-- Controls -->
+<div class="controls-area">
+  <button type="button" class="controls-button" (click)="resetStructure()">Reset List</button>
+  <button type="button" class="controls-button" (click)="generateStructure()">Generate New List</button>
+</div>
+
+<!-- Nested List -->
+<div
+  class="structure-wrapper"
+  [ngClass]="{'fading-in': isFadingIn()}"
+  [ngStyle]="{'width.px': structureDepth < 10 ? 300 + 20 * structureDepth : 500 + 40 * (structureDepth - 10)}">
+
+  <!-- Recursive List of Draggable Elements -->
+  <ng-template
+    [ngTemplateOutlet]="recursiveGroup"
+    [ngTemplateOutletContext]="{group: structure, ancestorDragged: false}"
+  />
+
+  <!-- Drop Area After Last Draggable Element -->
+  <ng-template
+    [ngTemplateOutlet]="dropArea"
+    [ngTemplateOutletContext]="{group: structure, area: structure.length, ancestorDragged: false}"
+  />
+
+</div>
+
+<!-- Recursive Template -->
+<ng-template #recursiveGroup let-group="group" let-ancestorDragged="ancestorDragged">
+  @for (element of group; track element.id) {
+
+    <!-- Drop Area Before Each Draggable Element -->
+    <ng-template
+      [ngTemplateOutlet]="dropArea"
+      [ngTemplateOutletContext]="{group, area: $index, ancestorDragged}"
+    />
+
+    <div
+      class="recursive-wrapper"
+      [ngClass]="{
+        'grow': targetGroup === group && growIndex === $index,
+        'shrink': sourceGroup === group && shrinkIndex === $index,
+        'active-dragover': draggedIndex !== NONE &&
+          targetGroup === group && targetElementIndex === $index && 
+            !(sourceGroup === group && draggedIndex === $index)
+      }"
+      [draggable]="!isActionInProgress"
+      (mousedown)="onMouseDown($event)"
+      (dragstart)="onDragStart($event, group, $index)"
+      (dragend)="onDragEnd()">
+    
+      <!-- Draggable Element -->
+      <div
+        class="list-element grab-allowed"
+        [ngClass]="{
+          'dragged': (sourceGroup === group && draggedIndex === $index) || ancestorDragged,
+          'active-dragover insert': draggedIndex !== NONE &&
+            targetGroup === group && targetElementIndex === $index && 
+              !(sourceGroup === group && draggedIndex === $index)
+        }"
+        (dragover)="!ancestorDragged && onElementDragOver($event, group, $index)"
+        (dragleave)="!ancestorDragged && onElementDragLeave()"
+        (drop)="onElementDrop()">
+
+        <!-- Element Text -->
+        <div class="element-text">
+          <span>Element</span>
+          <span class="position">
+            @for (part of element.initialPosition; track $index) {
+              <span class="number">{{part}}</span>
+              <span>{{$last ? '' : '.'}}</span>
+            }
+          </span>
+          @if (element.isRepositioned) {
+            <span class="position current">
+              <span>(now&nbsp;</span>
+              @for (part of element.currentPosition; track $index) {
+                <span class="number">{{part}}</span>
+                <span>{{$last ? '' : '.'}}</span>
+              }
+              <span>)</span>
+            </span>
+          }
+        </div>     
+
+      </div>
+
+      <!-- Child Elements -->
+      @if (element.children.length) {
+        <ng-template
+          [ngTemplateOutlet]="recursiveGroup"
+          [ngTemplateOutletContext]="{
+            group: element.children,
+            ancestorDragged: (sourceGroup === group && draggedIndex === $index) || ancestorDragged
+          }"
+        />
+      }
+
+    </div>
+
+  }
+</ng-template>
+
+<!-- Drop Area Template -->
+<ng-template #dropArea let-group="group" let-area="area" let-ancestorDragged="ancestorDragged">
+  <div
+    class="drop-area"
+    [ngClass]="{
+      'possible': draggedIndex !== NONE && !ancestorDragged &&
+        (sourceGroup !== group || (draggedIndex !== area && draggedIndex !== area - 1)),
+      'active': targetGroup == group && targetAreaIndex === area,
+      'grow': targetGroup === group && growIndex === area,
+      'shrink': sourceGroup === group && shrinkIndex === area,
+    }"
+    (dragover)="!ancestorDragged && onAreaDragOver($event, group, area)"
+    (dragleave)="!ancestorDragged && onAreaDragLeave()"
+    (drop)="!ancestorDragged && onAreaDrop()">
+  </div>
+</ng-template>

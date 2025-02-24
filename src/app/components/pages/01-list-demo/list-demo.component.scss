@@ -1,0 +1,5 @@
+@use '../../../../styles-shared' as *;
+
+:host {
+  @include page;
+}

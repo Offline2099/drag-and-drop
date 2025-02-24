@@ -1,0 +1,23 @@
+@use '../../../../styles-shared' as *;
+
+:host {
+  @include page;
+  .wrapper {
+    display: flex;
+    gap: 20px;
+    @include enable-blink(500ms);
+    .placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $text-dim;
+      height: $element-height;
+      animation: fade-in .5s;
+    }
+    .indicators {
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+    }
+  }
+}

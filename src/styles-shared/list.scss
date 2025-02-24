@@ -1,0 +1,50 @@
+@use './base' as *;
+@use './drag-and-drop' as *;
+
+$element-height: 42px;
+$drop-area-height: 8px;
+$drop-area-gap: 2px;
+$animation-time: 300ms;
+
+.draggable-element-list {
+  width: 300px;
+  animation: none;
+  @include enable-blink(500ms);
+  .list-element {
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    @include draggable(100%, $element-height);
+    @include animated-height('list-element', $animation-time, $element-height);
+    .element-text {
+      display: flex;
+      gap: .5em;
+      .element-number {
+        width: 1em;
+        text-align: center;
+        color: $text-primary;
+      }
+    }
+    .indicators {
+      display: flex;
+      flex-grow: 1;
+      justify-content: space-around;
+    }
+  }
+  .drop-area {
+    @include drop-area(
+      $drop-area-height,
+      $drop-area-gap,
+      calc($element-height / 4),
+      $animation-time
+    );
+    &.no-swap {
+      @include drop-area(
+        $drop-area-height,
+        $drop-area-gap,
+        calc($element-height / 2),
+        $animation-time
+      );
+    }
+  }
+}

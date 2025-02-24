@@ -1,0 +1,5 @@
+@for (button of MENU; track $index) {
+  <a [routerLink]="button.url" routerLinkActive="active">
+    {{button.text}}
+  </a>
+}

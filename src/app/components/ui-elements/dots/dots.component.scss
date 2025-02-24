@@ -1,0 +1,29 @@
+@use '../../../../styles-shared' as *;
+
+$dot-size: 4px;
+$dots-gap: 2px;
+
+@mixin max-dots-in-row($n) {
+  max-width: calc($n * $dot-size + ($n - 1) * $dots-gap);
+}
+
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: $dots-gap;
+  margin: 0 auto;
+  transform: scaleY(-1);
+  @include max-dots-in-row(4);
+  &.before-10 {
+    @include max-dots-in-row(3);
+  }
+  &.before-5 {
+    @include max-dots-in-row(2);
+  }
+  .dot {
+    @include circle($dot-size);
+    background-color: $text-primary;
+  }
+}

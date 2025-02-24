@@ -1,0 +1,116 @@
+<!-- Instructions -->
+<p class="instructions">Drag and drop elements to change their positions in the table.</p>
+
+<!-- Controls -->
+<div class="controls-area">
+  <app-checkbox class="secondary" [isChecked]="isInsertionAllowed" label="Allow Insertion" (click)="toggleInsertion()" />
+  <button type="button" class="controls-button" (click)="resetTable()">Reset Table</button>
+  <button type="button" class="controls-button" (click)="shuffleTable()">Shuffle Table</button>
+</div>
+
+<!-- Tables -->
+<div class="table-wrapper-outer" [ngClass]="{'fading-in': isFadingIn()}">
+
+  <!-- Table by Rows -->
+  <div class="table-wrapper rows" [ngClass]="{'visible': !(isActionInProgress && !isTargetAreaVertical)}">
+    @for (row of tableByRows; track $index; let $r = $index) {
+      <div class="row">
+        @for (element of row; track element.id; let $c = $index) {
+          <ng-template [ngTemplateOutlet]="cell" [ngTemplateOutletContext]="{r: $r, c: $c, element }" />
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Table by Columns -->
+  <div class="table-wrapper columns" [ngClass]="{'visible': isActionInProgress && !isTargetAreaVertical}">
+    @for (column of tableByColumns; track $index; let $c = $index) {
+      <div class="column">
+        @for (element of column; track element.id; let $r = $index) {
+          <ng-template [ngTemplateOutlet]="cell" [ngTemplateOutletContext]="{r: $r, c: $c, element }" />
+        }
+      </div>
+    }
+  </div>
+
+</div>
+
+<!-- Table Cell Template -->
+<ng-template #cell let-r="r" let-c="c" let-element="element">
+  <div
+    class="cell-wrapper-outer"
+    [ngClass]="{
+      'grow-vertical': draggedCell && !isTargetAreaVertical && growIndex === r && draggedCell.column === c,
+      'shrink-vertical': draggedCell && !isTargetAreaVertical && shrinkIndex === r && draggedCell.column === c,
+      'grow-horizontal': draggedCell && isTargetAreaVertical && growIndex === c && draggedCell.row === r,
+      'shrink-horizontal': draggedCell && isTargetAreaVertical && shrinkIndex === c && draggedCell.row === r
+    }">
+
+    <!-- Drop Area Before Each Draggable Cell -->
+    <ng-template [ngTemplateOutlet]="dropArea" [ngTemplateOutletContext]="{vertical: true, r, c}" />
+
+    <div class="cell-wrapper-inner">
+
+      <!-- Drop Area Above Each Draggable Cell -->
+      <ng-template [ngTemplateOutlet]="dropArea" [ngTemplateOutletContext]="{vertical: false, r, c}" />
+  
+      <!-- Draggable Cell -->
+      <div
+        class="cell"
+        [ngClass]="{
+          'dragged': !isActionInProgress && draggedCell && draggedCell.row === r && draggedCell.column === c,
+          'active-dragover swap': targetCell && targetCell.row === r && targetCell.column === c,
+          'swap-start-source': targetCell && swapSource && swapSource.row === r && swapSource.column === c,
+          'swap-start-target': targetCell && swapTarget && swapTarget.row === r && swapTarget.column === c,
+          'swap-end': !targetCell && swapSource &&  swapTarget &&
+            ((swapSource.row === r && swapSource.column === c) ||
+              (swapTarget.row === r && swapTarget.column === c))
+        }"
+        [draggable]="!isActionInProgress"
+        (dragstart)="onDragStart(r, c)"
+        (dragover)="onElementDragOver($event, r, c)"
+        (dragleave)="onElementDragLeave()"
+        (dragend)="onDragEnd()"
+        (drop)="onElementDrop()">
+
+        <!-- Element Text -->
+        <div class="cell-text">
+          <span>Element</span>
+          <span class="element-number">{{element.number}}</span>
+        </div>
+        
+      </div>
+  
+      <!-- Drop Area Below Last Draggable Cell in Column -->
+      @if (r === tableByRows.length - 1 && !isActionInProgress) {
+        <ng-template [ngTemplateOutlet]="dropArea" [ngTemplateOutletContext]="{vertical: false, r: r + 1, c}" />
+      }
+    
+    </div>
+
+    <!-- Drop Area After Last Draggable Cell in Row -->
+    @if (c === tableByRows[0].length - 1 && !isActionInProgress) {
+      <ng-template [ngTemplateOutlet]="dropArea" [ngTemplateOutletContext]="{vertical: true, r, c: c + 1}" />
+    }
+
+  </div>
+</ng-template>
+
+<!-- Drop Area Template -->
+<ng-template #dropArea let-vertical="vertical" let-r="r" let-c="c">
+  <div
+    class="drop-area"
+    [ngClass]="{
+      'vertical': vertical,
+      'possible': isInsertionAllowed && !isActionInProgress && draggedCell && (vertical 
+        ? draggedCell.row === r && draggedCell.column !== c && draggedCell.column !== c - 1
+        : draggedCell.column === c && draggedCell.row !== r && draggedCell.row !== r - 1),
+      'active': isInsertionAllowed && draggedCell && (vertical 
+        ? isTargetAreaVertical && draggedCell.row === r && targetAreaIndex === c
+        : !isTargetAreaVertical && draggedCell.column === c && targetAreaIndex === r)
+    }"
+    (dragover)="onAreaDragOver($event, vertical, r, c)"
+    (dragleave)="onAreaDragLeave()"
+    (drop)="onAreaDrop()">
+  </div>
+</ng-template>

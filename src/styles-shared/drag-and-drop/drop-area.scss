@@ -1,0 +1,53 @@
+@use 'sass:color';
+@use '../base' as *;
+
+@mixin drop-area($size, $gap, $overlap, $animation-time) {
+  position: relative;
+  height: $size;
+  &:before {
+    @include pseudo-overlay($top: $gap, $height: calc(100% - 2 * $gap));
+    background-color: transparent;
+    border-radius: calc($size / 2 - $gap);
+    transition: .2s;
+  }
+  &.possible {
+    &:before {
+      background-color: color.adjust($secondary, $lightness: -12%);
+    }
+    &:after {
+      @include pseudo-overlay($top: -$overlap, $height: calc(100% + 2 * $overlap));
+    }
+  }
+  &.vertical {
+    width: $size;
+    flex-shrink: 0;
+    &:before {
+      @include pseudo-overlay($left: $gap, $width: calc(100% - 2 * $gap));
+    }
+    &.possible:after {
+      @include pseudo-overlay(
+        $top: -$overlap,
+        $left: -$overlap,
+        $height: calc(100% + 2 * $overlap),
+        $width: calc(100% + 2 * $overlap)
+      );
+    }
+  }
+  &.active:before {
+    background-color: $secondary;
+  }
+  &.grow {
+    animation: grow-area $animation-time linear both;
+  }
+  &.shrink {
+    animation: grow-area $animation-time linear reverse both;
+  }
+  @keyframes grow-area {
+    0% {
+      height: 0;
+    }
+    100% {
+      height: $size;
+    }
+  }
+}

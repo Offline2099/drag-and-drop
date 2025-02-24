@@ -1,0 +1,77 @@
+@use 'sass:color';
+@use '../base' as *;
+
+$element-dragged-opacity: .6;
+$element-dragover-bg-swap: color.adjust($tertiary, $lightness: -12.5%);
+$element-dragover-bg-insert: color.adjust($secondary, $lightness: -12.5%);
+$swap-duration-half: 250ms;
+
+@mixin draggable($width, $height) {
+  display: flex;
+  width: $width;
+  height: $height;
+  border-radius: 4px;
+  background-color: $bg-bright;
+  user-select: none;
+  transition: opacity .2s, background-color .2s;
+  cursor: grab;
+  @include change-scale('scale-grow', 0, 1);
+  @include change-scale('scale-shrink', 1, 0);
+  &.dragged {
+    opacity: $element-dragged-opacity;
+  }
+  &.active-dragover {
+    &.swap {
+      background-color: $element-dragover-bg-swap;
+    }
+    &.insert {
+      background-color: $element-dragover-bg-insert;
+    }
+  }
+  &.swap-start-source {
+    opacity: $element-dragged-opacity;
+    animation: scale-shrink $swap-duration-half both;
+  }
+  &.swap-start-target {
+    background-color: $element-dragover-bg-swap;
+    animation: scale-shrink $swap-duration-half both;
+  }
+  &.swap-end {
+    animation: scale-grow $swap-duration-half both;
+  }
+}
+
+@mixin animated-height($name, $animation-time, $element-height) {
+  &.grow {
+    animation: #{$name}-grow $animation-time linear both;
+    & > * {
+      animation: fade-in .1s $animation-time linear both;
+    }
+  }
+  &.shrink {
+    animation: #{$name}-shrink $animation-time linear both;
+    & > * {
+      animation: fade-in .1s linear reverse both;
+    }
+  }
+  @keyframes #{$name}-grow {
+    0% {
+      height: 0;
+      opacity: 0;
+    }
+    100% {
+      height: $element-height;
+      opacity: 1;
+    }
+  }
+  @keyframes #{$name}-shrink {
+    0% {
+      height: $element-height;
+      opacity: $element-dragged-opacity;
+    }
+    100% {
+      height: 0;
+      opacity: 0;
+    }
+  }
+}

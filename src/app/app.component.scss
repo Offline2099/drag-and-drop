@@ -1,0 +1,52 @@
+@use 'sass:color';
+@use '../styles-shared' as *;
+
+:host {
+  display: grid;
+  grid-template-columns: 1 / -1;
+  grid-template-rows: max-content max-content 1fr 75px;
+  height: 100vh;
+  & > * {
+    display: flex;
+    justify-content: center;
+  }
+  header {
+    @include dotted-pattern($bg-normal, #555, 1px, 20px);
+    h1 {
+      margin: 20px;
+      font-weight: 500;
+      cursor: default;
+    }
+  }
+  nav {
+    @include dotted-pattern($bg-dark, $bg-brighter, 1px, 12px);
+  }
+  main {
+    background: 
+      radial-gradient(
+        color.adjust($primary, $lightness: -28%),
+        color.adjust($primary, $lightness: -28.5%) 20%,
+        $bg-base 50%
+      );
+    overflow-y: scroll;
+  }
+  footer {
+    @include dotted-pattern($bg-normal, #555, 1px, 20px);
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    .row {
+      display: flex;
+      gap: 15px;
+      a {
+        color: $primary;
+        text-decoration: none;
+        transition: .2s;
+        @include hover {
+          color: $text-primary;
+        }
+      }
+    }
+  }
+}

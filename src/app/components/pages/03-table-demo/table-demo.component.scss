@@ -1,0 +1,148 @@
+@use '../../../../styles-shared' as *;
+
+$table-cell-height: 50px;
+$table-cell-width: 125px;
+$table-drop-area-size: 10px;
+$table-drop-area-gap: 2px;
+$animation-time: 300ms;
+
+:host {
+  @include page;
+  .table-wrapper-outer {
+    position: relative;
+    display: flex;
+    @include enable-blink(500ms);
+    .table-wrapper {
+      display: flex;
+      opacity: 0;
+      pointer-events: none;
+      &.rows {
+        flex-direction: column;
+      }
+      &.columns {
+        position: absolute;
+      }
+      &.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .row,
+      .column {
+        display: flex;
+      }
+      .column {
+        flex-direction: column;
+        width: 100%;
+      }
+      .cell-wrapper-outer {
+        display: flex;
+        width: calc($table-cell-width + $table-drop-area-size);
+        &.grow-horizontal {
+          animation: cell-grow-horizontal $animation-time linear both;
+        }
+        &.grow-vertical {
+          animation: cell-grow-vertical $animation-time linear both;
+        }
+        &.grow-horizontal .cell-text,
+        &.grow-vertical .cell-text {
+          animation: fade-in .1s $animation-time linear both;
+        }
+        &.shrink-horizontal {
+          animation: cell-shrink-horizontal $animation-time linear both;
+        }
+        &.shrink-vertical {
+          animation: cell-shrink-vertical $animation-time linear both;
+        }
+        &.shrink-horizontal .cell-text,
+        &.shrink-vertical .cell-text {
+          animation: fade-in .1s linear reverse both;
+        }
+        .cell-wrapper-inner {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          .cell {
+            align-items: center;
+            justify-content: center;
+            @include draggable(min(100%, $table-cell-width), $table-cell-height);
+            .cell-text {
+              display: flex;
+              gap: .5em;
+              .element-number {
+                width: 1.2em;
+                text-align: center;
+                color: $text-primary;
+              }
+            }
+          }
+        }
+        .drop-area {
+          @include drop-area(
+            $table-drop-area-size,
+            $table-drop-area-gap,
+            calc($table-cell-height * 0.3),
+            $animation-time
+          );
+          &.vertical {
+            height: $table-cell-height;
+            margin-top: auto;
+          }
+        }
+      }
+      .row .cell-wrapper-outer:last-of-type {
+        width: calc($table-cell-width + 2 * $table-drop-area-size);
+      }
+      .column .cell-wrapper-outer:last-of-type {
+        height: calc($table-cell-height + 2 * $table-drop-area-size);
+      }
+      .row:last-of-type .drop-area.vertical,
+      .column .cell-wrapper-outer:last-of-type .drop-area.vertical {
+        margin-bottom: auto;
+      }
+    }
+  }
+}
+
+@keyframes cell-grow-vertical {
+  0% {
+    height: 0;
+    opacity: 0;
+  }
+  100% {
+    height: calc($table-cell-height + $table-drop-area-size);
+    opacity: 1;
+  }
+}
+
+@keyframes cell-grow-horizontal {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  100% {
+    width: calc($table-cell-width + $table-drop-area-size);
+    opacity: 1;
+  }
+}
+
+@keyframes cell-shrink-vertical {
+  0% {
+    height: calc($table-cell-height + $table-drop-area-size);
+    opacity: $element-dragged-opacity;
+  }
+  100% {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes cell-shrink-horizontal {
+  0% {
+    width: calc($table-cell-width + $table-drop-area-size);
+    opacity: $element-dragged-opacity;
+  }
+  100% {
+    width: 0;
+    opacity: 0;
+  }
+}

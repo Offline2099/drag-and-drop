@@ -1,0 +1,94 @@
+@use '../../../../styles-shared' as *;
+
+$element-height: 32px;
+$drop-area-height: 8px;
+$drop-area-gap: 2px;
+$animation-time: 500ms;
+
+:host {
+  @include page;
+  .structure-wrapper {
+    @include enable-blink(500ms);
+    padding: 4px 10px;
+    border-radius: 4px;
+    background-color: $bg-dark;
+    transition: width .3s;
+    .recursive-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background-color: $bg-dark;
+      &:before {
+        @include pseudo-overlay(
+          $top: calc($element-height + $drop-area-height / 2),
+          $left: 1px,
+          $width: calc(100% - 1px),
+          $height: calc(100% - $element-height - $drop-area-height / 2)
+        );
+        border-left: 2px dotted $bg-bright;
+        transition: .2s;
+      }
+      &.active-dragover:before {
+        border-color: $secondary;
+      }
+      .recursive-wrapper,
+      .drop-area {
+        margin-left: 20px;
+      }
+      .list-element {
+        align-items: center;
+        padding: 0 10px;
+        @include draggable(100%, $element-height);
+        @include animated-height('recursive-element', $animation-time, $element-height);
+        .element-text {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          gap: .5em;
+          .position {
+            display: flex;
+            gap: 1px;
+            &.current {
+              margin-left: auto;
+              color: $text-dim;
+              font-size: 12px;
+            }
+            .number {
+              color: $text-primary;
+            }
+          }
+        }
+      }
+      &.grow {
+        .list-element {
+          animation: recursive-element-grow $animation-time linear both;
+          & > * {
+            animation: fade-in .1s $animation-time linear both;
+          }
+        } 
+        .drop-area {
+          animation: grow-area $animation-time linear both;
+        }
+      } 
+      &.shrink {
+        .list-element {
+          animation: recursive-element-shrink $animation-time linear both;
+          & > * {
+            animation: fade-in .1s linear reverse both;
+          }
+        }
+        .drop-area {
+          animation: grow-area $animation-time linear reverse both;
+        }
+      } 
+    }
+    .drop-area {
+      @include drop-area(
+        $drop-area-height,
+        $drop-area-gap,
+        calc($element-height / 4),
+        $animation-time
+      );
+    }
+  }
+}

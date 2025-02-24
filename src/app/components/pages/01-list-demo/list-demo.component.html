@@ -1,0 +1,78 @@
+<!-- Instructions -->
+<p class="instructions">Drag and drop elements to change their order in the list.</p>
+
+<!-- Controls -->
+<div class="controls-area">
+  <app-checkbox class="tertiary" [isChecked]="isSwapAllowed" label="Allow Swap" (click)="toggleSwap()" />
+  <button type="button" class="controls-button" (click)="resetList()">Reset List</button>
+  <button type="button" class="controls-button" (click)="shuffleList()">Shuffle List</button>
+</div>
+
+<!-- List of Draggable Elements -->
+<div
+  class="draggable-element-list"
+  [ngClass]="{'fading-in': isFadingIn()}">
+  @for (element of list; track element.id) {
+
+    <!-- Drop Area Before Each Draggable Element -->
+    <ng-template
+      [ngTemplateOutlet]="dropArea"
+      [ngTemplateOutletContext]="{area: $index}"
+    />
+
+    <!-- Draggable Element -->
+    <div
+      class="list-element"
+      [ngClass]="{
+        'dragged': draggedIndex === $index,
+        'active-dragover swap': isSwapAllowed && draggedIndex !== NONE && 
+          targetElementIndex === $index && draggedIndex !== $index,
+        'grow': growIndex === $index,
+        'shrink': shrinkIndex === $index,
+        'swap-start-source': targetElementIndex !== NONE && swapSourceIndex === $index,
+        'swap-start-target': targetElementIndex !== NONE && swapTargetIndex === $index,
+        'swap-end': targetElementIndex === NONE && (swapSourceIndex === $index || swapTargetIndex === $index)
+      }"
+      [draggable]="!isActionInProgress"
+      (dragstart)="onDragStart($index)"
+      (dragend)="onDragEnd()"
+      (dragover)="onElementDragOver($event, $index)"
+      (dragleave)="onElementDragLeave()"
+      (drop)="onElementDrop()">
+
+      <!-- Element Text -->
+      <div class="element-text">
+        <span>Draggable Element</span>
+        <span class="element-number">{{element.number}}</span>
+      </div>
+
+      <!-- Dots to Visualize Number -->
+      <app-dots class="primary" [amount]="element.number" />
+
+    </div>
+  }
+
+  <!-- Drop Area After Last Draggable Element -->
+  <ng-template
+    [ngTemplateOutlet]="dropArea"
+    [ngTemplateOutletContext]="{area: list.length}"
+  />
+  
+</div>
+
+<!-- Drop Area Template -->
+<ng-template #dropArea let-area="area">
+  <div
+    class="drop-area"
+    [ngClass]="{
+      'possible': draggedIndex !== NONE && draggedIndex !== area && draggedIndex !== area - 1,
+      'active': targetAreaIndex === area,
+      'grow': growIndex === area - 1,
+      'shrink': shrinkIndex === area - 1,
+      'no-swap': !isSwapAllowed
+    }"
+    (dragover)="onAreaDragOver($event, area)"
+    (dragleave)="onAreaDragLeave()"
+    (drop)="onAreaDrop()">
+  </div>
+</ng-template>
