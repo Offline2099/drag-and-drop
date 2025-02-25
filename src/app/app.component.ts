@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostBinding } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MenuComponent } from './components/ui-elements/menu/menu.component';
 
@@ -9,4 +9,11 @@ import { MenuComponent } from './components/ui-elements/menu/menu.component';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
+
+  @HostBinding('class.allow-touch-screen') isTouchScreenAllowed: boolean = false;
+
+  allowTouchScreen(): void {
+    this.isTouchScreenAllowed = true;
+  }
+
 }
